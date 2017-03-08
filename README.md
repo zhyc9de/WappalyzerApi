@@ -56,7 +56,7 @@ return: 任务ID
 
 ```
 path:   /status/<task_id>
-method: POST
+method: GET
 type:   json
 @example:
 {
