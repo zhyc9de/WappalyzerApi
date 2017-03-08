@@ -15,11 +15,13 @@
 ## 安装
 
 环境：python3.6 redis chrome node selenium
+
 目前Wappalyzer插件版本： 2.51
 
 ```bash
 # 安装selenium
 npm install -g selenium-standalone
+
 selenium-standalone install
 # 国内请使用
 selenium-standalone install --drivers.chrome.baseURL=https://npm.taobao.org/mirrors/chromedriver --baseURL=https://npm.taobao.org/mirrors/selenium --drivers.firefox.baseURL=https://npm.taobao.org/mirrors/geckodriver
@@ -51,7 +53,7 @@ return: 任务ID
 获取结果
 
 ```
-path:   /task
+path:   /status/<task_id>
 method: POST
 type:   json
 @example:
