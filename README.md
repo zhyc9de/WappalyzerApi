@@ -49,6 +49,7 @@ type:   json
 {
 	"urls":["https://www.baidu.com/"]
 }
+
 return: 任务ID
 ```
 
@@ -57,11 +58,7 @@ return: 任务ID
 ```
 path:   /status/<task_id>
 method: GET
-type:   json
-@example:
-{
-	"urls":["https://www.baidu.com/"]
-}
+
 return: 处理结果，{
             'scan': 0,
             'apps': []
