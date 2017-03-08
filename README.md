@@ -1,5 +1,7 @@
 # WappalyzerApi
 
+[Wappalyzer](https://wappalyzer.com/)可以帮你轻松探测到别家网站采用的技术栈，做信息采集的时候十分有用
+
 由于找到的开源版Wappalyzer都没chrome插件探测出来的准确
 
 所以基于chrome插件修改了这么个版本出来
