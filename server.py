@@ -36,16 +36,11 @@ async def receive(request):
     task_key = Key_Status.format(task_id)
 
     old_data = model_redis.get(task_key)
-    if old_data:
-        old_data = json.loads(old_data)
-        old_data['scan'] += 1
-        insert_data_list += old_data['apps']
-        old_data['apps'] = remove_duplicates(insert_data_list)
-    else:
-        old_data = {
-            'scan': 1,
-            'apps': insert_data_list
-        }
+
+    old_data = json.loads(old_data)
+    old_data['scan'] += 1
+    insert_data_list += old_data['apps']
+    old_data['apps'] = remove_duplicates(insert_data_list)
 
     model_redis.set(task_key, json.dumps(old_data))
 

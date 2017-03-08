@@ -33,6 +33,37 @@ pip3 install -r requirements.txt
 ./start.sh
 ```
 
+## 接口
+
+请求任务
+
+```
+path:   /task
+method: POST
+type:   json
+@example:
+{
+	"urls":["https://www.baidu.com/"]
+}
+return: 任务ID
+```
+
+获取结果
+
+```
+path:   /task
+method: POST
+type:   json
+@example:
+{
+	"urls":["https://www.baidu.com/"]
+}
+return: 处理结果，{
+            'scan': 0,
+            'apps': []
+        }
+```
+
 ## TODO
 
 - [ ] 打包docker
