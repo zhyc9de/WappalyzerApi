@@ -49,7 +49,7 @@ async def receive(request):
 
 @app.route("/task", methods=['POST'])
 async def task(request):
-    urls = request.json['urls']
+    urls = request.form['urls']
     task_id = str(time.time()) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(3))
     model_redis.lpush(List_Todo, json.dumps({
         'task_id': task_id,
