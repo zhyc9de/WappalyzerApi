@@ -17,7 +17,7 @@ RUN apt-get install -y redis-server \
     nodejs \
     xvfb \
     openjdk-8-jre-headless \
-    google-chrome-stable \
+    google-chrome-stable
 
 RUN npm i -g selenium-standalone && selenium-standalone install
 
