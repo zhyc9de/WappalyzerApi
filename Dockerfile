@@ -1,5 +1,7 @@
 FROM python:3
 
+RUN apt-get update && apt-get -y dist-upgrade
+
 RUN cd /tmp && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     dpkg -i google-chrome-stable_current_amd64.deb && \
