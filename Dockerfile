@@ -3,16 +3,17 @@ ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
+USER root
+
 RUN apt-get update && apt-get -y dist-upgrade
 
-RUN apt-get install -y software-properties-common wget
-RUN add-apt-repository -y ppa:fkrull/deadsnakes
+RUN apt-get install -y wget
 
 RUN wget -qO- https://deb.nodesource.com/setup_6.x | sudo bash -
 
 RUN apt-get update
 RUN apt-get install -y redis-server \
-    python3.6 \
+    python3.5 \
     nodejs \
     xvfb \
     openjdk-8-jre-headless \
@@ -24,7 +25,9 @@ ADD src /root/api
 
 RUN pip3 install -r /root/api/requirements.txt
 
-USER root
+RUN apt-get autoclean && apt-get clean && apt-get autoremove
+
+RUN rm -rf /var/cache/apt/archives
 
 CMD /root/api/start.sh
 
