@@ -16,8 +16,12 @@ RUN apt-get install -y redis-server \
     python3.5 \
     nodejs \
     xvfb \
-    openjdk-8-jre-headless \
-    google-chrome-stable
+    openjdk-8-jre-headless
+
+RUN cd /tmp && \
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+dpkg -i google-chrome-stable_current_amd64.deb && \
+apt-get -f -y install
 
 RUN npm i -g selenium-standalone && selenium-standalone install
 
