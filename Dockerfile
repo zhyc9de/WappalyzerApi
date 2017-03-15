@@ -9,7 +9,7 @@ RUN apt-get update && apt-get -y dist-upgrade
 
 RUN apt-get install -y wget
 
-RUN wget -qO- https://deb.nodesource.com/setup_6.x | sudo bash -
+RUN wget -qO- https://deb.nodesource.com/setup_6.x | bash -
 
 RUN apt-get update
 RUN apt-get install -y redis-server \
