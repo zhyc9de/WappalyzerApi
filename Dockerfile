@@ -1,19 +1,12 @@
-FROM python:3
+FROM selenium/standalone-chrome
 
 RUN apt-get update && apt-get -y dist-upgrade
 
-RUN cd /tmp && \
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i google-chrome-stable_current_amd64.deb && \
-    apt-get -f -y install
-
-RUN curl --silent --location https://rpm.nodesource.com/setup_6.x | bash -
-RUN add-apt-repository -y ppa:openjdk-r/ppa
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository -y ppa:fkrull/deadsnakes
 
 RUN apt-get update
-RUN apt-get install -y redis-server nodejs openjdk-8-jre-headless
-
-RUN npm install selenium-standalone@latest -g
+RUN apt-get install -y redis-server python3.6
 
 ADD src /root/api
 
