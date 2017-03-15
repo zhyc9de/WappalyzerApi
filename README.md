@@ -44,11 +44,9 @@ pip3 install -r requirements.txt
 ```
 path:   /task
 method: POST
-type:   json
+type:   form
 @example:
-{
-	"urls":["https://www.baidu.com/"]
-}
+urls=https://www.baidu.com/&urls=....&urls=....
 
 return: 任务ID
 ```
@@ -67,6 +65,6 @@ return: 处理结果，{
 
 ## TODO
 
-- [ ] 打包docker
+- [x] 打包docker
 - [ ] 添加代理
 - [ ] 多线程（是否有必要？
