@@ -9,6 +9,9 @@ RUN apt-get update && apt-get -y dist-upgrade
 
 RUN apt-get install -y wget
 
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+
 RUN wget -qO- https://deb.nodesource.com/setup_6.x | bash -
 
 RUN apt-get update
@@ -16,12 +19,8 @@ RUN apt-get install -y redis-server \
     python3.5 \
     nodejs \
     xvfb \
-    openjdk-8-jre-headless
-
-RUN cd /tmp && \
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-dpkg -i google-chrome-stable_current_amd64.deb && \
-apt-get -f -y install
+    openjdk-8-jre-headless \
+    google-chrome-stable
 
 RUN npm i -g selenium-standalone && selenium-standalone install
 
