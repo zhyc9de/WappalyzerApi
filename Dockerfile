@@ -34,6 +34,6 @@ RUN apt-get autoclean && apt-get clean && apt-get autoremove
 
 RUN rm -rf /var/cache/apt/archives
 
-CMD /opt/api/start.sh
+# CMD /opt/api/start.sh
 
 EXPOSE 8000
