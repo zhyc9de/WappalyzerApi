@@ -25,8 +25,6 @@ RUN apt-get install -y redis-server \
 
 RUN npm i -g selenium-standalone && selenium-standalone install
 
-ADD ./src /opt/api
-
 RUN wget -qO- https://bootstrap.pypa.io/get-pip.py | python3.5
 RUN pip3 install -r /root/api/requirements.txt
 
@@ -34,6 +32,8 @@ RUN apt-get autoclean && apt-get clean && apt-get autoremove
 
 RUN rm -rf /var/cache/apt/archives
 
-CMD /opt/api/start.sh
+ADD ./src /opt/api
+
+# CMD /opt/api/start.sh
 
 EXPOSE 8000
