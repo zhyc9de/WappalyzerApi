@@ -13,8 +13,11 @@ A Modified Wappalyzer Extension to Intercept API Responses via Selenium ChromeDr
 Note: chromedriver should be in PATH!
 
 # Running
+To create db:
+```python manage.py init_db  ```
 
-python manage.py init_db --> create db
-python manage.py runserver --> so server is up
+To up server:
+```python manage.py runserver ```
 
-Execute analyze.py script to update with wappalyzer results your db. --> JSON format.
+Execute script to update with wappalyzer results your db. --> JSON format.:
+``` py analyze.py ``` 
