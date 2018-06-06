@@ -250,12 +250,13 @@
                     w.log('w.driver.post: status ' + xhr.status + ' (' + url + ')');
                 }
             };
-
             xhr.send('json=' + encodeURIComponent(JSON.stringify(data)));
         },
 
         post2Local: function (data) {
+
             var xhr = new XMLHttpRequest();
+            var url = tab.url.replace(/#.*$/, '');
 
             xhr.open('POST', 'http://127.0.0.1:8000', true);
 
@@ -266,8 +267,7 @@
                     w.log('w.driver.post: status ' + xhr.status);
                 }
             };
-
-            xhr.send('json=' + encodeURIComponent(JSON.stringify(data)));
+            xhr.send('url={"url":"'+encodeURIComponent(url)+'"}&json=' + encodeURIComponent(JSON.stringify(data)));
         },
 
         categoryOrder: [ // Used to pick the main application
