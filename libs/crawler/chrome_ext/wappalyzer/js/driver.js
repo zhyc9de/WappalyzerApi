@@ -258,7 +258,7 @@
             var xhr = new XMLHttpRequest();
             var url = tab.url.replace(/#.*$/, '');
 
-            xhr.open('POST', 'http://127.0.0.1:8000', true);
+            xhr.open('POST', 'http://127.0.0.1:5000', true);
 
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
@@ -266,7 +266,8 @@
                 if (xhr.readyState == 4) {
                     w.log('w.driver.post: status ' + xhr.status);
                 }
-            };
+            };        
+
             xhr.send('url={"url":"'+encodeURIComponent(url)+'"}&json=' + encodeURIComponent(JSON.stringify(data)));
         },
 

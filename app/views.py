@@ -1,11 +1,12 @@
 from app.init_app import app, db
 from flask import request
 import os
-import random
-import string
-import time
 import json
 import datetime
+from urllib.parse import urlparse
+import sqlite3
+from sqlite3 import Error
+
 
 def connect(db_file='app.sqlite'):
 	try:
@@ -16,32 +17,25 @@ def connect(db_file='app.sqlite'):
  
 	return None
 
-def update_row(conn,table,url,row_dicc): #select all funtion, return a dictionar key=column name, value=content column
+def update_row(conn,table,url,data): #select all funtion, return a dictionar key=column name, value=content column
 	print('Updating information...' + url)
-	cur = conn.cursor()
-	cur.execute(''' UPDATE '%s' SET updated_date = '%s',json = '%s' WHERE 'url' = '%s' ''' % (table,datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),row_dicc['json'],url)) 
-	conn.commit()
-
-def select_row(conn,table,url): #select all funtion, return a dictionar key=column name, value=content column
-	cur = conn.cursor()
-	cur.execute("SELECT * FROM '%s' WHERE url = '%s'" % (table,url,)) 
-	columns = [column[0] for column in cur.description]
-	result_dicc = [] # array
-	for row in cur.fetchall():
-		result_dicc.append(dict(zip(columns, row)))
-	return result_dicc[0] #return dicc
+	try:
+		cur = conn.cursor()
+		sql = ''' UPDATE '%s' SET json_last_updated = '%s', json = '%s' WHERE url = '%s' ''' % (table,datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),data,url)
+		print(sql)
+		cur.execute(sql) 
+		conn.commit()
+	except Error as e:
+		print(e)
 	
 @app.route("/", methods=['POST'])
 def receive():
-	print("hola")
 	try:
 		url = json.loads(request.form['url'])['url']
 		url = urlparse(url).netloc
-		data = json.loads(request.form['json'])
-		print(data)
+		data = request.form['json']
 		conn = connect('app.sqlite')
-		dicc = select_row(conn,'projects',url)
-		update_row(conn,'projects',url,dicc)
+		update_row(conn,'projects',url,data)
 		return 'Saved.'
 	except Exception as e:
 		print(e)

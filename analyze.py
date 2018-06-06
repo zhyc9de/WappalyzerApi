@@ -75,7 +75,6 @@ def probe(page_url):
 	try:
 		driver = chrome_new_session(extensions=['wappalyzer'])
 		driver.get(page_url)
-		time.sleep(3)
 		driver.quit()
 	except Exception as e:
 		print(e)
