@@ -17,17 +17,33 @@ def connect(db_file='app.sqlite'):
  
 	return None
 
-def update_row(conn,table,url,data): #select all funtion, return a dictionar key=column name, value=content column
-	print('Updating information...' + url)
+def update_row(conn,table,url,data): 
+	print('Updating information... ' + url)
 	try:
 		cur = conn.cursor()
 		sql = ''' UPDATE '%s' SET json_last_updated = '%s', json = '%s' WHERE url = '%s' ''' % (table,datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),data,url)
-		print(sql)
+		cur.execute(sql) 
+		conn.commit()
+	except Error as e:
+		print(e)
+
+def select_row(conn,table,url):
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM '%s' WHERE url = '%s'" % (table,url,)) 
+	rows = cur.fetchall()
+	return rows
+			
+def create_row(conn,table,url,data): 
+	print('Creating new entry by ...' + url)
+	try:
+		cur = conn.cursor()
+		sql = '''INSERT INTO '%s' VALUES (NULL,'%s','%s','%s') ''' % (table,url,data,datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 		cur.execute(sql) 
 		conn.commit()
 	except Error as e:
 		print(e)
 	
+
 @app.route("/", methods=['POST'])
 def receive():
 	try:
@@ -35,7 +51,10 @@ def receive():
 		url = urlparse(url).netloc
 		data = request.form['json']
 		conn = connect('app.sqlite')
-		update_row(conn,'projects',url,data)
-		return 'Saved.'
+		if not select_row(conn,'projects',url): #if url doesn't exist
+			create_row(conn,'projects',url,data)
+		else:	
+			update_row(conn,'projects',url,data)
+		return 'Saved.'	
 	except Exception as e:
 		print(e)

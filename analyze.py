@@ -5,6 +5,28 @@ from selenium.webdriver.chrome.options import Options
 from libs import get_root_path
 import sqlite3
 from sqlite3 import Error
+import sys, getopt
+import requests
+import re
+
+def main(argv):
+	url = ''
+	try:
+		opts, args = getopt.getopt(argv,"hu:n:",["url=","normal"])
+	except getopt.GetoptError:
+		print('analyze.py -u <url>')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '-h':
+			print('analyze.py -u <url>')
+			sys.exit()
+		elif opt in ("-u", "--url"):
+			url = arg
+			print('URL to crawl and analys is: ' + url), url
+			dynamic_analyze(url)
+		elif opt in ("-n", "--normal"):
+			print('Normal functionality')
+			static_analyze()
 
 ################ BD GENERIC METHODS #################
 
@@ -89,8 +111,7 @@ def get_urls(dicc):
 					urls.append(v2)
 	return urls
 
-## while...
-if __name__ == '__main__':
+def static_analyze():
 	try:
 		conn = connect('app.sqlite')
 		dicc = select_all(conn)
@@ -106,4 +127,35 @@ if __name__ == '__main__':
 		else:
 			print("Please add URL in BBDD.")			
 	except Exception as e:
-		print(e)		
+		print(e)
+
+def get_comodo_urls(url):
+	url_comodo = 'https://crt.sh/?q=%.'
+	analyze_url = url_comodo+url
+	html = requests.get(analyze_url).text
+	regex = re.compile(r'<TD>\S+</TD>') #define regex
+	urls = regex.findall(html)
+	return urls
+	
+def dynamic_analyze(url):
+	try:
+		conn = connect('app.sqlite')
+		urls = get_comodo_urls(url)
+		if not not urls:
+			for url in urls:
+				url = url.replace('<TD>','')
+				url = url.replace('</TD>','')
+				print("Reading URL ..." + url)
+				try:
+					probe('http://'+url)
+					probe('https://'+url)
+				except:
+					continue
+		else:
+			print("Please add URL in BBDD.")			
+	except Exception as e:
+		print(e)
+## while...
+if __name__ == '__main__':
+	main(sys.argv[1:])
+		
