@@ -92,13 +92,19 @@ def get_urls(dicc):
 
 ## while...
 if __name__ == '__main__':
-	conn = connect('app.sqlite')
-	dicc = select_all(conn)
-	urls = get_urls(dicc)
-	for url in urls:
-		print("Reading URL ..." + url)
-		try:
-			probe('http://'+url)
-			probe('https://'+url)
-		except:
-			continue
+	try:
+		conn = connect('app.sqlite')
+		dicc = select_all(conn)
+		urls = get_urls(dicc)
+		if not not urls:
+			for url in urls:
+				print("Reading URL ..." + url)
+				try:
+					probe('http://'+url)
+					probe('https://'+url)
+				except:
+					continue
+		else:
+			print("Please add URL in BBDD.")			
+	except Exception as e:
+		print(e)		
