@@ -17,8 +17,9 @@ import re
 #main method to specify arguments
 def main(argv):
 	url = ''
+	file = ''
 	try:
-		opts, args = getopt.getopt(argv,"hu:n:",["url=","normal"])
+		opts, args = getopt.getopt(argv,"hu:f:",["url=","file="])
 	except getopt.GetoptError:
 		print('analyze.py -u <url>')
 		sys.exit(2)
@@ -30,9 +31,10 @@ def main(argv):
 			url = arg
 			print('URL to crawl and analys is: ' + url), url
 			dynamic_analyze(url)
-		elif opt in ("-n", "--normal"):
+		elif opt in ("-f", "--file"):
 			print('Normal functionality')
-			static_analyze()
+			file = open(arg,'r').readlines()
+			static_analyze(file)
 
 ################ BD GENERIC METHODS #################
 
@@ -118,21 +120,15 @@ def get_urls(dicc):
 	return urls
 
 #method to analyze a specific url
-def static_analyze():
+def static_analyze(urls):
 	try:
-		conn = connect('app.sqlite')
-		dicc = select_all(conn)
-		urls = get_urls(dicc)
-		if not not urls:
-			for url in urls:
-				print("Reading URL ..." + url)
-				try:
-					probe('http://'+url)
-					probe('https://'+url)
-				except:
-					continue
-		else:
-			print("Please add URL in BBDD.")			
+		for url in urls:
+			print("Reading URL ..." + url)
+			try:
+				probe('http://'+url)
+				probe('https://'+url)
+			except:
+				continue	
 	except Exception as e:
 		print(e)
 
@@ -143,18 +139,18 @@ def get_comodo_urls(url):
 	html = requests.get(analyze_url).text
 	regex = re.compile(r'<TD>\S+</TD>') #define regex
 	urls = regex.findall(html)
-	return urls
+	return set(urls)
 
 #method to analyze multiple urls to comodo CA crt.sh
 def dynamic_analyze(url):
 	try:
 		conn = connect('app.sqlite')
 		urls = get_comodo_urls(url)
-		if not not urls:
+		if urls:
 			for url in urls:
 				url = url.replace('<TD>','')
 				url = url.replace('</TD>','')
-				print("Reading URL ..." + url)
+				print("Reading URL: " + url)
 				try:
 					probe('http://'+url)
 					probe('https://'+url)
