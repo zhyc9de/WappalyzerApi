@@ -1,13 +1,16 @@
+#
+# Authors:  Xavi Álvarez
+#			Pedro Galindo
+
 from app.init_app import app, db
 from flask import request
-import os
 import json
 import datetime
 from urllib.parse import urlparse
 import sqlite3
 from sqlite3 import Error
 
-
+#method to connect bbdd
 def connect(db_file='app.sqlite'):
 	try:
 		conn = sqlite3.connect(db_file)
@@ -17,6 +20,7 @@ def connect(db_file='app.sqlite'):
  
 	return None
 
+#method to update a specific url
 def update_row(conn,table,url,data): 
 	print('Updating information... ' + url)
 	try:
@@ -27,12 +31,14 @@ def update_row(conn,table,url,data):
 	except Error as e:
 		print(e)
 
+# method to check if url exists in bbdd
 def select_row(conn,table,url):
 	cur = conn.cursor()
 	cur.execute("SELECT * FROM '%s' WHERE url = '%s'" % (table,url,)) 
 	rows = cur.fetchall()
 	return rows
 			
+#method to create a new row if url doesn't exist in bbdd			
 def create_row(conn,table,url,data): 
 	print('Creating new entry by ...' + url)
 	try:
@@ -43,7 +49,7 @@ def create_row(conn,table,url,data):
 	except Error as e:
 		print(e)
 	
-
+#method to receive post requests
 @app.route("/", methods=['POST'])
 def receive():
 	try:

@@ -1,5 +1,10 @@
 # coding:utf-8
-import time, os
+
+#
+# Authors:  Xavi Álvarez
+#			Pedro Galindo
+
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from libs import get_root_path
@@ -9,6 +14,7 @@ import sys, getopt
 import requests
 import re
 
+#main method to specify arguments
 def main(argv):
 	url = ''
 	try:
@@ -111,6 +117,7 @@ def get_urls(dicc):
 					urls.append(v2)
 	return urls
 
+#method to analyze a specific url
 def static_analyze():
 	try:
 		conn = connect('app.sqlite')
@@ -129,6 +136,7 @@ def static_analyze():
 	except Exception as e:
 		print(e)
 
+#method to extract url from comodo page
 def get_comodo_urls(url):
 	url_comodo = 'https://crt.sh/?q=%.'
 	analyze_url = url_comodo+url
@@ -136,7 +144,8 @@ def get_comodo_urls(url):
 	regex = re.compile(r'<TD>\S+</TD>') #define regex
 	urls = regex.findall(html)
 	return urls
-	
+
+#method to analyze multiple urls to comodo CA crt.sh
 def dynamic_analyze(url):
 	try:
 		conn = connect('app.sqlite')
@@ -155,6 +164,7 @@ def dynamic_analyze(url):
 			print("Please add URL in BBDD.")			
 	except Exception as e:
 		print(e)
+
 ## while...
 if __name__ == '__main__':
 	main(sys.argv[1:])

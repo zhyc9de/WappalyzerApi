@@ -1,6 +1,6 @@
 #
-# Authors: Xavi Álvarez
-#          Pedro Galindo
+# Authors:  Xavi Álvarez
+#			Pedro Galindo
 
 from app.init_app import app, db
 
