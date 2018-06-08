@@ -1,70 +1,37 @@
-# WappalyzerApi
 
-[Wappalyzer](https://wappalyzer.com/)可以帮你轻松探测到别家网站采用的技术栈，做信息采集的时候十分有用
+Forked project from: https://github.com/zhyc9de/WappalyzerApi
+-------------------------------------------------------------------
 
-由于找到的开源版Wappalyzer都没chrome插件探测出来的准确
+# Wappalyzer-api
 
-所以基于chrome插件修改了这么个版本出来
+Flask version.
 
-## 原理
+A Modified Wappalyzer Extension to Intercept API Responses via Selenium ChromeDriver.
 
-[下载crx源文件](http://chrome-extension-downloader.com/)，直接解压，添加代码使其探测完成后传回服务器
+This version include a new functionality that allow analyze each url, from the same domain, following COMODO CA Certificate Search page (https://crt.sh/).
 
-利用selenium，装载插件访问网页得到数据
+# Installation
 
-通过API进行数据传输
+```pip install -r requirements.txt```
 
-## 安装
+Note: chromedriver should be in PATH!
 
-环境：python3.6 redis chrome node selenium
+# Running
 
-目前Wappalyzer插件版本： 2.51
+To create db:
+```python manage.py init_db  ```
 
-```bash
-# 安装selenium
-npm install -g selenium-standalone
+To up server:
+```python manage.py runserver ```
 
-selenium-standalone install
-# 国内请使用
-selenium-standalone install --drivers.chrome.baseURL=https://npm.taobao.org/mirrors/chromedriver --baseURL=https://npm.taobao.org/mirrors/selenium --drivers.firefox.baseURL=https://npm.taobao.org/mirrors/geckodriver
-# 开启selenium
-selenium-standalone start
+To update with wappalyzer results in your db. --> JSON format.
 
-# 安装python3依赖
-pip3 install -r requirements.txt
+Launch Wappalyzer to all subdomains found from url:
+``` py analyze.py --url example.com ```
 
-# 后台启动
-./start.sh
-```
+Launch Wappalyzer to each url in text file:
+``` py analyze.py --file file.txt ```
 
-## 接口
+Launch Wappalyzer to all subdomains found from urls in text file:
+``` py analyze.py --certfile file.txt ```
 
-请求任务
-
-```
-path:   /task
-method: POST
-type:   form
-@example:
-urls=https://www.baidu.com/&urls=....&urls=....
-
-return: 任务ID
-```
-
-获取结果
-
-```
-path:   /status/<task_id>
-method: GET
-
-return: 处理结果，{
-            'scan': 0,
-            'apps': []
-        }
-```
-
-## TODO
-
-- [x] 打包docker
-- [ ] 添加代理
-- [ ] 多线程（是否有必要？
