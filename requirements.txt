@@ -1,3 +1,5 @@
+requests
 flask
-sqlite3
 selenium
+tldextract
+flask_sqlalchemy

@@ -5,20 +5,22 @@
 #			Pedro Galindo
 
 import os
+import tldextract
+from sys import platform as _platform
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from libs import get_root_path
-import sqlite3
-from sqlite3 import Error
 import sys, getopt
 import requests
 import re
+import time
 
 #main method to specify arguments
 def main(argv):
 	url = ''
+	file = ''
 	try:
-		opts, args = getopt.getopt(argv,"hu:n:",["url=","normal"])
+		opts, args = getopt.getopt(argv,"hu:f:c:",["url=","file=","certfile="])
 	except getopt.GetoptError:
 		print('analyze.py -u <url>')
 		sys.exit(2)
@@ -27,38 +29,33 @@ def main(argv):
 			print('analyze.py -u <url>')
 			sys.exit()
 		elif opt in ("-u", "--url"):
+			print('[!] Reading URL: '+arg)
 			url = arg
-			print('URL to crawl and analys is: ' + url), url
 			dynamic_analyze(url)
-		elif opt in ("-n", "--normal"):
-			print('Normal functionality')
-			static_analyze()
+		elif opt in ("-f", "--file"):
+			print('[!] Reading URLs from file: '+arg)
+			file = open(arg,'r').readlines()
+			static_analyze(file)
+		elif opt in ("-c", "--certfile"):
+			print('[!] Reading URLs from file: '+arg)
+			file = open(arg,'r').readlines()
+			dynamic_analyze(file)
 
-################ BD GENERIC METHODS #################
-
-def connect(db_file='app.sqlite'):
-	try:
-		conn = sqlite3.connect(db_file)
-		return conn
-	except Error as e:
-		print(e)
- 
-	return None
-
-def select_all(conn):
-	cur = conn.cursor()
-	cur.execute("SELECT * FROM projects")
-	columns = [column[0] for column in cur.description]
-	principal_dicc = [] # array
-	content_dicc =  []
-	num = 1
-	for row in cur.fetchall():
-		content_dicc.append(dict(zip(columns,row)))
-		principal_dicc.append(dict(zip(str(num), content_dicc)))
-		content_dicc = []
-		num = num + 1
-
-	return principal_dicc #return dicc
+# Check Operating System
+def checkOS():
+	operating_system = _platform
+	if operating_system == "linux" or operating_system == "linux2":
+		# Linux
+		print('[!] Launching ChromeDriver for Linux')
+		return 'linux'	
+	elif operating_system == "darwin":
+		# Mac
+		print('[!] Launching ChromeDriver for Mac OS X')
+		return 'mac'
+	elif operating_system == "win32" or operating_system == "win64":
+		# Windows
+		print('[!] Launching ChromeDriver for Windows')
+		return 'win'
 
 ##### Functional methods
 
@@ -73,8 +70,10 @@ def add_ext(options, crx_name):
 
 ## defining new chrome session
 def chrome_new_session(show_image=True, incognito=False, proxy_server=None, ua=None, mobile=False,
-					   extensions=None):
+					   extensions=None,operating_system=None):
 	options = Options()
+
+	options.add_argument("window-size=1,1")
 
 	if not show_image:
 		options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
@@ -95,17 +94,25 @@ def chrome_new_session(show_image=True, incognito=False, proxy_server=None, ua=N
 	if extensions:
 		[add_ext(options, crx) for crx in extensions]
 
-	return webdriver.Chrome(chrome_options=options) #loading selenium chromwdriver with specific options
+	if operating_system:
+		if operating_system == "linux":
+			# Linux
+			return webdriver.Chrome(os.getcwd()+'/chromedriver_linux', chrome_options=options) #loading selenium chromedriver for Linux
+		elif operating_system == "mac":
+			# Mac
+			return webdriver.Chrome(os.getcwd()+'/chromedriver_mac', chrome_options=options) #loading selenium chromedriver for Linux
+		elif operating_system == "win":
+			# Windows
+			return webdriver.Chrome(os.getcwd()+'/chromedriver.exe', chrome_options=options) #loading selenium chromedriver for Linux
+	return webdriver.Chrome(chrome_options=options)
 
 ## driver open browser
-def probe(page_url):
-	print("Analyzing: " + page_url)
+def probe(driver,page_url):
 	try:
-		driver = chrome_new_session(extensions=['wappalyzer'])
 		driver.get(page_url)
-		driver.quit()
+		time.sleep(2)
 	except Exception as e:
-		print(e)
+		print('[!] '+page_url+' TIMEOUT')
 
 #method to extract urls from list of dict
 def get_urls(dicc):
@@ -118,52 +125,70 @@ def get_urls(dicc):
 	return urls
 
 #method to analyze a specific url
-def static_analyze():
+def static_analyze(urls):
+	driver = chrome_new_session(extensions=['wappalyzer'],operating_system=checkOS())
+	driver.set_page_load_timeout(30)
 	try:
-		conn = connect('app.sqlite')
-		dicc = select_all(conn)
-		urls = get_urls(dicc)
-		if not not urls:
-			for url in urls:
-				print("Reading URL ..." + url)
-				try:
-					probe('http://'+url)
-					probe('https://'+url)
-				except:
-					continue
-		else:
-			print("Please add URL in BBDD.")			
+		for url in urls:
+			url = url.strip('\r\n')
+			try:
+				print('[*] Scanning http://'+url)
+				probe(driver,'http://'+url)
+				print('[*] Scanning https://'+url)
+				probe(driver,'https://'+url)
+			except:
+				continue	
+		driver.quit()
 	except Exception as e:
 		print(e)
 
 #method to extract url from comodo page
 def get_comodo_urls(url):
+	url = tldextract.extract(url)
+	url = url.domain + '.' + url.suffix
+	print('[*] Launching CRT.sh Discovery for URL: ' + url)
+	result = []
 	url_comodo = 'https://crt.sh/?q=%.'
 	analyze_url = url_comodo+url
 	html = requests.get(analyze_url).text
 	regex = re.compile(r'<TD>\S+</TD>') #define regex
 	urls = regex.findall(html)
-	return urls
+	for url in urls:
+		url = url.strip('<TD>')
+		url = url.strip('</TD>')
+		result.append(url)
+	return set(result)
 
 #method to analyze multiple urls to comodo CA crt.sh
-def dynamic_analyze(url):
-	try:
-		conn = connect('app.sqlite')
-		urls = get_comodo_urls(url)
-		if not not urls:
-			for url in urls:
-				url = url.replace('<TD>','')
-				url = url.replace('</TD>','')
-				print("Reading URL ..." + url)
-				try:
-					probe('http://'+url)
-					probe('https://'+url)
-				except:
-					continue
-		else:
-			print("Please add URL in BBDD.")			
-	except Exception as e:
-		print(e)
+def dynamic_analyze(urls):
+	driver = chrome_new_session(extensions=['wappalyzer'],operating_system=checkOS())
+	driver.set_page_load_timeout(30)
+	if isinstance(urls,list) == True or isinstance(urls,set) == True:
+		for u in urls:
+			u = u.strip("\r\n")
+			try:
+				cert_urls = get_comodo_urls(u)
+				for url in cert_urls:
+					print('[!] Found URL: '+url)
+					print('[*] Scanning http://'+url)
+					probe(driver,'http://'+url)
+					print('[*] Scanning https://'+url)
+					probe(driver,'https://'+url)
+			except Exception as e:
+				print(e)
+		driver.quit()
+	if isinstance(urls, str) == True:
+		try:
+			cert_urls = get_comodo_urls(urls)
+			if cert_urls:
+				for url in cert_urls:
+					print('[!] Found URL: '+url)
+					probe(driver,'http://'+url)
+					print('[*] Checking HTTP')
+					probe(driver,'https://'+url)
+					print('[*] Checking HTTPS')
+		except Exception as e:
+			print(e)
 
 ## while...
 if __name__ == '__main__':
