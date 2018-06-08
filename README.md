@@ -26,8 +26,12 @@ To up server:
 
 To update with wappalyzer results in your db. --> JSON format.
 
-Analyze each url that your BBDD contains:
-``` py analyze.py --normal ```
+Launch Wappalyzer to all subdomains found from url:
+``` py analyze.py --url example.com ```
 
-Dynamic analyze from url to obtain multiple results from domain:
- ``` py analyze.py --url example.com ```
+Launch Wappalyzer to each url in text file:
+``` py analyze.py --file file.txt ```
+
+Launch Wappalyzer to all subdomains found from urls in text file:
+``` py analyze.py --certfile file.txt ```
+
