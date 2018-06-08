@@ -10,8 +10,6 @@ from sys import platform as _platform
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from libs import get_root_path
-import sqlite3
-from sqlite3 import Error
 import sys, getopt
 import requests
 import re
@@ -31,6 +29,7 @@ def main(argv):
 			print('analyze.py -u <url>')
 			sys.exit()
 		elif opt in ("-u", "--url"):
+			print('[!] Reading URL: '+arg)
 			url = arg
 			dynamic_analyze(url)
 		elif opt in ("-f", "--file"):
@@ -38,6 +37,7 @@ def main(argv):
 			file = open(arg,'r').readlines()
 			static_analyze(file)
 		elif opt in ("-c", "--certfile"):
+			print('[!] Reading URLs from file: '+arg)
 			file = open(arg,'r').readlines()
 			dynamic_analyze(file)
 
@@ -56,32 +56,6 @@ def checkOS():
 		# Windows
 		print('[!] Launching ChromeDriver for Windows')
 		return 'win'
-
-################ BD GENERIC METHODS #################
-
-def connect(db_file='app.sqlite'):
-	try:
-		conn = sqlite3.connect(db_file)
-		return conn
-	except Error as e:
-		print(e)
- 
-	return None
-
-def select_all(conn):
-	cur = conn.cursor()
-	cur.execute("SELECT * FROM projects")
-	columns = [column[0] for column in cur.description]
-	principal_dicc = [] # array
-	content_dicc =  []
-	num = 1
-	for row in cur.fetchall():
-		content_dicc.append(dict(zip(columns,row)))
-		principal_dicc.append(dict(zip(str(num), content_dicc)))
-		content_dicc = []
-		num = num + 1
-
-	return principal_dicc #return dicc
 
 ##### Functional methods
 
