@@ -3,3 +3,4 @@ flask
 selenium
 tldextract
 flask_sqlalchemy
+urllib3
